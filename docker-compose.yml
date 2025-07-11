@@ -5,3 +5,20 @@ services:
     build: .
     ports:
       - "8000:8000"
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+  get_urls_worker:
+    build: .
+    command: celery -A celery_app worker -Q get_urls --concurrency=8 --loglevel=info --hostname=get_urls_worker@%h
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
+    driver: local
