@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from pymongo import ASCENDING
-from crawler.services import fetch_urls
 from common.models import APIResponse
 from crawler.models import CrawlUrlsRequestBody
 from database import db_manager
 from config.constants import WAITING_URLS_COLLECTION, WAITING_URLS_URL_INDEX_FIELD
+from celery_app import celery_fetch_url
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,5 +32,5 @@ async def index():
 
 @app.post("/crawler/article-urls", response_model=APIResponse[str])
 async def crawl_urls(request_body: CrawlUrlsRequestBody):
-    await fetch_urls(request_body=request_body)
+    celery_fetch_url.delay(request_body.model_dump())
     return APIResponse(data="Crawling article urls is processing")
