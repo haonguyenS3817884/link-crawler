@@ -13,7 +13,7 @@ services:
       - redis_data:/data
   get_urls_worker:
     build: .
-    command: celery -A celery_app worker -Q get_urls --concurrency=8 --loglevel=info --hostname=get_urls_worker@%h
+    command: celery -A celery_app worker -Q get_urls --concurrency=8 --loglevel=info --prefetch-multiplier=1 --hostname=get_urls_worker@%h
     volumes:
       - .:/app
     depends_on:
