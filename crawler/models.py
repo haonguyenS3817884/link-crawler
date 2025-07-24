@@ -6,7 +6,7 @@ from utils.convert_handler import encode_datetime
 from utils.datetime_handler import utc_now
 
 class CrawlUrlsRequestBody(BaseModel):
-    target_url: str
+    target_urls: list[str]
     wait_for: int = 1000 # milliseconds
 
 class WaitingUrl(BaseModel):

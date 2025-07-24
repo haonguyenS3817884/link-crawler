@@ -32,5 +32,6 @@ async def index():
 
 @app.post("/crawler/article-urls", response_model=APIResponse[str])
 async def crawl_urls(request_body: CrawlUrlsRequestBody):
-    celery_fetch_url.delay(request_body.model_dump())
+    for target_url in request_body.target_urls:
+        celery_fetch_url.delay(target_url, request_body.wait_for)
     return APIResponse(data="Crawling article urls is processing")

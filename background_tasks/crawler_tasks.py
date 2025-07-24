@@ -1,24 +1,24 @@
 from playwright.async_api import async_playwright
 from urllib.parse import urljoin
 import asyncio
-from crawler.models import CrawlUrlsRequestBody, CreateWaitingUrl
+from crawler.models import CreateWaitingUrl
 from utils.url_handler import get_domain, get_domain_url
 from crawler.repository import insert_url
 from utils.crawl_handler import get_all_hrefs, scroll_all_page
 
-async def fetch_urls(request_body: CrawlUrlsRequestBody):
+async def fetch_urls(target_url: str, wait_for: int = 1000):
     urls = set()
     insert_operations = []
-    domain = get_domain(url=request_body.target_url)
-    domain_url = get_domain_url(url=request_body.target_url)
+    domain = get_domain(url=target_url)
+    domain_url = get_domain_url(url=target_url)
     
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
         page = await browser.new_page()
-        await page.goto(request_body.target_url, wait_until="domcontentloaded")
-        await page.wait_for_timeout(request_body.wait_for)
+        await page.goto(target_url, wait_until="domcontentloaded")
+        await page.wait_for_timeout(wait_for)
         
-        await scroll_all_page(page=page, wait_for=request_body.wait_for)
+        await scroll_all_page(page=page, wait_for=wait_for)
         
         hrefs = await get_all_hrefs(page=page)
         for href in hrefs:
