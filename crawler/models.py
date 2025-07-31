@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from bson import ObjectId
 from datetime import datetime
 from common.models import PyObjectId
@@ -17,10 +17,10 @@ class WaitingUrl(BaseModel):
     is_article_url: bool
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        validate_by_name = True
+    model_config = ConfigDict(
+        validate_by_name = True,
         json_encoders = {ObjectId: str, datetime: encode_datetime}
+    )
 
 class CreateWaitingUrl(BaseModel):
     url: str
