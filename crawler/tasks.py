@@ -1,10 +1,12 @@
 from playwright.async_api import async_playwright
 from urllib.parse import urljoin
 import asyncio
-from crawler.models import CreateWaitingUrl
+from celery_app import celery_app, GET_URLS_QUEUE
+from celery_event_loop import celery_event_loop_manager
 from utils.url_handler import get_domain, get_domain_url
-from crawler.repository import insert_url
 from utils.crawl_handler import get_all_hrefs, scroll_all_page
+from .repository import insert_url
+from .models import CreateWaitingUrl
 
 async def fetch_urls(target_url: str, wait_for: int = 1000):
     urls = set()
@@ -32,3 +34,7 @@ async def fetch_urls(target_url: str, wait_for: int = 1000):
         print(f"{len(urls)} article urls are found")
         await asyncio.gather(*insert_operations)
         await browser.close()
+
+@celery_app.task(queue=GET_URLS_QUEUE)
+def celery_fetch_url(target_url: str, wait_for: int = 1000):
+    celery_event_loop_manager.loop.run_until_complete(fetch_urls(target_url=target_url, wait_for=wait_for))
