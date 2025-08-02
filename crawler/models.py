@@ -29,3 +29,6 @@ class CreateWaitingUrl(BaseModel):
     is_article_url: bool = True
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
+    model_config = ConfigDict(
+        json_encoders = {datetime: encode_datetime}
+    )

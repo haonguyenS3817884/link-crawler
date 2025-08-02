@@ -7,7 +7,7 @@ waiting_urls_collection = db_manager.db[WAITING_URLS_COLLECTION]
 
 async def insert_url(payload: CreateWaitingUrl):
     try:
-        payload_dict = payload.model_dump()
+        payload_dict = payload.model_dump(mode="json")
         await waiting_urls_collection.insert_one(payload_dict)
         print(f"{payload.url} is inserted")
     except errors.DuplicateKeyError as e:
@@ -16,5 +16,5 @@ async def insert_url(payload: CreateWaitingUrl):
         print(f"Failed to insert url: {e}")
 
 async def insert_urls(payloads: list[CreateWaitingUrl]):
-    payload_insert_operations = [InsertOne(payload.model_dump()) for payload in payloads]
+    payload_insert_operations = [InsertOne(payload.model_dump(mode="json")) for payload in payloads]
     return await waiting_urls_collection.bulk_write(payload_insert_operations, ordered=False)
